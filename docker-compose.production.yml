@@ -14,6 +14,9 @@ services:
       - "80:80"
     environment:
       - RAILS_ENV=production
+      # IMPORTANT: Set RAILS_MASTER_KEY in Portainer environment variables
+      # Get the value with: cat config/master.key
+      # Make sure there are no spaces or newlines when pasting
       - RAILS_MASTER_KEY=${RAILS_MASTER_KEY}
       - RAILS_MAX_THREADS=${RAILS_MAX_THREADS:-5}
       - RAILS_LOG_LEVEL=${RAILS_LOG_LEVEL:-info}
@@ -44,6 +47,19 @@ services:
         reservations:
           cpus: '0.5'
           memory: 512M
+
+  # Optional: Cloudflare Tunnel service
+  # Uncomment and configure if you want to run cloudflared in Docker
+  # Make sure to set CLOUDFLARE_TUNNEL_TOKEN environment variable in Portainer
+  # cloudflared:
+  #   image: cloudflare/cloudflared:latest
+  #   container_name: portfolio_cloudflared
+  #   restart: unless-stopped
+  #   command: tunnel run
+  #   environment:
+  #     - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN}
+  #   depends_on:
+  #     - web
 
 volumes:
   portfolio_storage:

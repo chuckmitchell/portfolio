@@ -161,6 +161,36 @@ The container includes a health check that monitors `/up` endpoint. You can chec
 2. Verify `RAILS_MASTER_KEY` is set correctly
 3. Check if port 80 is already in use
 
+### "key must be 16 bytes" or "ArgumentError" on startup
+This error means `RAILS_MASTER_KEY` is missing, empty, or incorrectly formatted.
+
+**Solution:**
+1. **Get your master key:**
+   ```bash
+   cat config/master.key
+   ```
+   Copy the entire 32-character string (no spaces, no newlines)
+
+2. **In Portainer:**
+   - Go to your stack → **Editor** → **Environment variables**
+   - Find `RAILS_MASTER_KEY`
+   - Make sure the value is exactly 32 characters
+   - Remove any leading/trailing spaces or newlines
+
+3. **Verify in container:**
+   ```bash
+   # In Portainer, open container console
+   echo $RAILS_MASTER_KEY | wc -c
+   # Should output: 33 (32 chars + newline) or 32
+   ```
+
+4. **If still having issues:**
+   - Try setting it directly in docker-compose.production.yml temporarily:
+     ```yaml
+     - RAILS_MASTER_KEY=cfa64967788d6caeee50b331bc0539a2  # Your actual key
+     ```
+   - Or use Portainer's **Secrets** feature instead of environment variables
+
 ### Database errors
 1. Check volume permissions
 2. Verify storage volume is mounted correctly
