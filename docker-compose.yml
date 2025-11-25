@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        RUBY_VERSION: 3.4.7
+    image: portfolio:development
+    container_name: portfolio_web
+    ports:
+      - "3000:3000"
+    environment:
+      - RAILS_ENV=development
+      - PORT=3000
+      - RAILS_MAX_THREADS=5
+      - BUNDLE_WITHOUT=
+    volumes:
+      # Mount source code for live reloading
+      - .:/rails
+      # Persist storage (SQLite databases)
+      - portfolio_storage:/rails/storage
+      # Persist bundler cache for faster gem installs
+      - portfolio_bundle_cache:/usr/local/bundle
+      # Persist node_modules if needed
+      - portfolio_node_modules:/rails/node_modules
+    working_dir: /rails
+    # Run as root for development to allow installing build tools
+    user: root
+    # Install build tools, development gems, and start server
+    command: sh -c "apt-get update -qq && apt-get install --no-install-recommends -y build-essential libyaml-dev pkg-config git 2>/dev/null || true && bundle install && ./bin/rails server -b 0.0.0.0"
+    stdin_open: true
+    tty: true
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  portfolio_storage:
+  portfolio_bundle_cache:
+  portfolio_node_modules:
+
