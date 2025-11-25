@@ -11,7 +11,9 @@ services:
     container_name: portfolio_web
     restart: unless-stopped
     ports:
-      - "80:80"
+      # Map host port 80 to container port 3000 (if Puma is listening on 3000)
+      # Change to "80:80" if Puma is actually listening on port 80
+      - "80:3000"
     environment:
       - RAILS_ENV=production
       # IMPORTANT: Set RAILS_MASTER_KEY in Portainer environment variables
@@ -20,7 +22,9 @@ services:
       - RAILS_MASTER_KEY=${RAILS_MASTER_KEY}
       - RAILS_MAX_THREADS=${RAILS_MAX_THREADS:-5}
       - RAILS_LOG_LEVEL=${RAILS_LOG_LEVEL:-info}
-      - PORT=80
+      # Puma listens on port 3000 by default (or PORT env var)
+      # Thruster wrapper should handle port 80, but if not, Puma uses 3000
+      - PORT=3000
       # Enable Solid Queue in Puma for background jobs
       - SOLID_QUEUE_IN_PUMA=true
       # Optional: Configure job concurrency
@@ -33,7 +37,7 @@ services:
       # Persist logs
       - portfolio_logs:/rails/log
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:80/up"]
+      test: ["CMD", "curl", "-f", "http://localhost:3000/up"]
       interval: 30s
       timeout: 10s
       retries: 3
